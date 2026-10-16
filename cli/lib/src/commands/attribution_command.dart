@@ -93,10 +93,29 @@ Map<String, dynamic> _readSettings(String settingsPath) {
 ///   somnio attribution on      — restore Claude Code's default
 ///   somnio attribution status  — show the current state
 class AttributionCommand extends Command<int> {
-  AttributionCommand({required Logger logger}) {
-    addSubcommand(_AttributionSetCommand(logger: logger, enabled: false));
-    addSubcommand(_AttributionSetCommand(logger: logger, enabled: true));
-    addSubcommand(_AttributionStatusCommand(logger: logger));
+  /// [settingsPath] resolves the settings file; defaults to
+  /// [claudeSettingsPath]. Tests point it at a temporary file.
+  AttributionCommand({
+    required Logger logger,
+    String Function() settingsPath = claudeSettingsPath,
+  }) {
+    addSubcommand(
+      _AttributionSetCommand(
+        logger: logger,
+        settingsPath: settingsPath,
+        enabled: false,
+      ),
+    );
+    addSubcommand(
+      _AttributionSetCommand(
+        logger: logger,
+        settingsPath: settingsPath,
+        enabled: true,
+      ),
+    );
+    addSubcommand(
+      _AttributionStatusCommand(logger: logger, settingsPath: settingsPath),
+    );
   }
 
   @override
@@ -110,11 +129,16 @@ class AttributionCommand extends Command<int> {
 }
 
 class _AttributionSetCommand extends Command<int> {
-  _AttributionSetCommand({required Logger logger, required bool enabled})
-      : _logger = logger,
+  _AttributionSetCommand({
+    required Logger logger,
+    required String Function() settingsPath,
+    required bool enabled,
+  })  : _logger = logger,
+        _settingsPath = settingsPath,
         _enabled = enabled;
 
   final Logger _logger;
+  final String Function() _settingsPath;
   final bool _enabled;
 
   @override
@@ -127,7 +151,7 @@ class _AttributionSetCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final settingsPath = claudeSettingsPath();
+    final settingsPath = _settingsPath();
     try {
       final changed = setClaudeAttribution(settingsPath, enabled: _enabled);
       final state = _enabled ? 'on' : 'off';
@@ -155,9 +179,14 @@ class _AttributionSetCommand extends Command<int> {
 }
 
 class _AttributionStatusCommand extends Command<int> {
-  _AttributionStatusCommand({required Logger logger}) : _logger = logger;
+  _AttributionStatusCommand({
+    required Logger logger,
+    required String Function() settingsPath,
+  })  : _logger = logger,
+        _settingsPath = settingsPath;
 
   final Logger _logger;
+  final String Function() _settingsPath;
 
   @override
   String get name => 'status';
@@ -168,7 +197,7 @@ class _AttributionStatusCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final settingsPath = claudeSettingsPath();
+    final settingsPath = _settingsPath();
     try {
       final state = readClaudeAttribution(settingsPath);
       switch (state) {

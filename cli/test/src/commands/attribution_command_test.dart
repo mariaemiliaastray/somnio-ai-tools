@@ -1,9 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:args/command_runner.dart';
+import 'package:mason_logger/mason_logger.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:somnio/src/commands/attribution_command.dart';
 import 'package:test/test.dart';
+
+class _MockLogger extends Mock implements Logger {}
 
 void main() {
   late Directory tmpDir;
@@ -152,6 +157,109 @@ void main() {
         readClaudeAttribution(settingsPath),
         ClaudeAttributionState.custom,
       );
+    });
+  });
+
+  group('AttributionCommand', () {
+    late _MockLogger logger;
+    late CommandRunner<int> runner;
+
+    setUp(() {
+      logger = _MockLogger();
+      runner = CommandRunner<int>('somnio', 'test')
+        ..addCommand(
+          AttributionCommand(logger: logger, settingsPath: () => settingsPath),
+        );
+    });
+
+    test('off turns attribution off and reports the change', () async {
+      final exitCode = await runner.run(['attribution', 'off']);
+
+      expect(exitCode, ExitCode.success.code);
+      expect(readSettings()['attribution'], {'commit': '', 'pr': ''});
+      verify(() => logger.success('Claude Code attribution turned off.'))
+          .called(1);
+    });
+
+    test('off reports when attribution is already off', () async {
+      writeSettings({
+        'attribution': {'commit': '', 'pr': ''},
+      });
+
+      final exitCode = await runner.run(['attribution', 'off']);
+
+      expect(exitCode, ExitCode.success.code);
+      verify(() => logger.info('Claude Code attribution is already off.'))
+          .called(1);
+      verifyNever(() => logger.success(any()));
+    });
+
+    test('on restores the default attribution', () async {
+      writeSettings({
+        'attribution': {'commit': '', 'pr': ''},
+      });
+
+      final exitCode = await runner.run(['attribution', 'on']);
+
+      expect(exitCode, ExitCode.success.code);
+      expect(readSettings(), isEmpty);
+      verify(() => logger.success('Claude Code attribution turned on.'))
+          .called(1);
+    });
+
+    test('off fails with a config error on malformed settings', () async {
+      File(settingsPath)
+        ..parent.createSync(recursive: true)
+        ..writeAsStringSync('{ not json');
+
+      final exitCode = await runner.run(['attribution', 'off']);
+
+      expect(exitCode, ExitCode.config.code);
+      expect(File(settingsPath).readAsStringSync(), '{ not json');
+      verify(() => logger.err(any(that: contains('was not changed'))))
+          .called(1);
+    });
+
+    test('status reports the default state', () async {
+      final exitCode = await runner.run(['attribution', 'status']);
+
+      expect(exitCode, ExitCode.success.code);
+      verify(
+        () => logger.info(any(that: contains('attribution is on (default)'))),
+      ).called(1);
+    });
+
+    test('status reports the off state', () async {
+      writeSettings({
+        'attribution': {'commit': '', 'pr': ''},
+      });
+
+      await runner.run(['attribution', 'status']);
+
+      verify(() => logger.info('Claude Code attribution is off.')).called(1);
+    });
+
+    test('status reports a custom attribution', () async {
+      writeSettings({
+        'attribution': {'commit': 'Made with AI', 'pr': ''},
+      });
+
+      await runner.run(['attribution', 'status']);
+
+      verify(
+        () => logger.info(any(that: contains('attribution is customized'))),
+      ).called(1);
+    });
+
+    test('status fails with a config error on malformed settings', () async {
+      File(settingsPath)
+        ..parent.createSync(recursive: true)
+        ..writeAsStringSync('{ not json');
+
+      final exitCode = await runner.run(['attribution', 'status']);
+
+      expect(exitCode, ExitCode.config.code);
+      verify(() => logger.err(any(that: contains('Could not read')))).called(1);
     });
   });
 }
