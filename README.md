@@ -115,6 +115,22 @@ somnio hooks --force    # skip confirmation
 
 ---
 
+## Claude Code Attribution
+
+Claude Code adds a `Co-Authored-By` trailer to commits and a "🤖 Generated with Claude Code" footer to pull requests by default. Turn both off in `~/.claude/settings.json` with one command:
+
+```bash
+somnio attribution off      # remove the trailer and the footer
+somnio attribution on       # restore Claude Code's default
+somnio attribution status   # show the current state
+```
+
+`somnio setup` offers to do this when it installs skills for Claude Code.
+
+> [CLI reference →](docs/cli.md#somnio-attribution)
+
+---
+
 ## Agent Rules
 
 Global coding standards — automatically applied by your AI agent in every project.

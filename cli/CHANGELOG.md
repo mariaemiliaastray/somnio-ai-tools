@@ -5,6 +5,13 @@ All notable changes to the Somnio CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`somnio attribution off|on|status`.** Claude Code adds a `Co-Authored-By` trailer to commits and a "🤖 Generated with Claude Code" footer to pull requests by default. `somnio attribution off` sets `"attribution": {"commit": "", "pr": ""}` in `~/.claude/settings.json`, keeping every other key; `on` removes the key to restore the default, and `status` reports the current state. A settings file that is not valid JSON is reported and left untouched.
+- **`somnio setup` offers to turn off Claude Code attribution.** When Claude Code is a detected agent and its attribution is not already off, setup asks after installing skills. `--force` and non-interactive runs never change it and print the command instead.
+
 ## [3.2.9] - 2026-10-16
 
 ### Added
