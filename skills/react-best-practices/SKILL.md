@@ -248,3 +248,9 @@ Include this block at the very end of the report:
 | Date | [YYYY-MM-DD] |
 | Somnio AI Tools | https://github.com/somnio-software/somnio-ai-tools |
 ```
+
+## Drive Upload (optional)
+
+Upload the report to the project's Google Drive folder **only when the user asks for it**: an `upload` argument (`/react-best-practices upload`), a request such as "and upload it to Drive", or `somnio run react-best-practices --upload`. Without that request, never upload anything.
+
+When it was requested, wait until the final report is written (in session, after the orchestrator returns), then read `references/drive-upload.md` and follow it **from the main session**, not from a subagent: subagents do not have the Google Drive MCP tools. If the audit did not produce a report, there is nothing to upload.

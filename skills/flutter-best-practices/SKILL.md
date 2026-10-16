@@ -187,3 +187,9 @@ After the orchestrator confirms all three Wave 1 artifacts exist:
 **Retry policy**: On a missing artifact, the orchestrator retries the responsible auditor once. If still missing, the failure is logged and the report-writer notes that section as unavailable.
 
 **Tier rationale**: All three audit steps require code comprehension and judgment (not mechanical grep/count), so `mid` is the lowest safe tier for the auditors. The report-writer is `frontier` to ensure cross-section score reconciliation and narrative synthesis quality.
+
+## Drive Upload (optional)
+
+Upload the report to the project's Google Drive folder **only when the user asks for it**: an `upload` argument (`/flutter-best-practices upload`), a request such as "and upload it to Drive", or `somnio run flutter-best-practices --upload`. Without that request, never upload anything.
+
+When it was requested, wait until the final report is written (in session, after the orchestrator returns), then read `references/drive-upload.md` and follow it **from the main session**, not from a subagent: subagents do not have the Google Drive MCP tools. If the audit did not produce a report, there is nothing to upload.
