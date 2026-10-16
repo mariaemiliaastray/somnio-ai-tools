@@ -5,6 +5,12 @@ All notable changes to the Somnio CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`git-pr-format` skill.** Generates pull request titles (Conventional Commits) and descriptions, filling in the repository's PR template when there is one. It never adds AI attribution: no "🤖 Generated with Claude Code" footer, no `Co-Authored-By` lines, and it removes them when updating an existing PR. `/ship` now follows it when it creates or updates the PR.
+
 ## [3.2.8] - 2026-10-09
 
 ### Added
