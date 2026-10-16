@@ -83,7 +83,7 @@ What it does:
 
 If `settings.json` is not valid JSON, the command stops with an error and does not touch the file.
 
-It applies to every Claude Code session on the machine, in every repository. Other agents have no such setting; the [`git-commit-format`](skills.md#git-commit-format) skill keeps attribution out of their commits.
+It applies to every Claude Code session on the machine, in every repository. Other agents have no such setting; the [`git-commit-format`](skills.md#git-commit-format) and [`git-pr-format`](skills.md#git-pr-format) skills keep attribution out of their commits and pull requests.
 
 ### somnio setup
 
